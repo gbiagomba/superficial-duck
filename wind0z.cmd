@@ -2,6 +2,8 @@ REM Author: Gilles Biagomba
 REM Program: wind0z.bat
 REM Description: This script is designed to perform windows checks for privilege escalation
 REM Ref: https://sushant747.gitbooks.io/total-oscp-guide/content/privilege_escalation_windows.html
+REM http://pwnwiki.io/#!privesc/windows/index.md
+REM https://hackmag.com/security/elevating-privileges-to-administrative-and-further/
 
 @echo off
 
@@ -111,6 +113,7 @@ REM Using sc
 sc query
 sc qc service name
 
+
 REM Ssearch for process Permissions
 cd %ProgramFiles%
 dir  /s /b *.exe | findstr /v .exe. >> %HOMEPATH%\Downloads\process.txt
@@ -125,3 +128,6 @@ driverquery
 REM AlwaysInstallElevated
 reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer\AlwaysInstallElevated
 reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer\AlwaysInstallElevated
+
+REM Lost auto launch
+autorunsc.exe -a | findstr /n /R "File\ not\ found"
