@@ -1,7 +1,7 @@
 # superficial-duck
 
 ## Description
-This script performs system checks in windows that could aid in priviledge escalation
+This script performs system checks in windows that could aid in privilege escalation
 
 ## Usage
 Upload the script to the impacted machine then run it
