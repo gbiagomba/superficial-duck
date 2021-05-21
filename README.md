@@ -6,7 +6,7 @@ This script performs system checks in windows that could aid in privilege escala
 ## Usage
 Upload the script to the impacted machine then run it
 ```
-wind0z.bat
+wind0z_privesc.bat
 ```
 
 ## Ref
