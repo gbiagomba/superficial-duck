@@ -1,5 +1,5 @@
 REM Author: Gilles Biagomba
-REM Program: wind0z_privesc.bat
+REM Program: wind0z_Pr1v3sc.bat
 REM Description: This script is designed to perform windows checks for privilege escalation
 REM Ref: https://sushant747.gitbooks.io/total-oscp-guide/content/privilege_escalation_windows.html
 REM http://pwnwiki.io/#!privesc/windows/index.md
