@@ -113,12 +113,18 @@ REM Using sc
 sc query
 sc qc service name
 
+REM How to search such directories/ files
+accesschk.exe -uwdqs users c:\
+accesschk.exe -uwdqs “Authenticated Users” c:\
+accesschk.exe -uwqs users c:\*.*
+accesschk.exe -uwqs “Authenticated Users” c:\*.*
+accesschk.exe –uwcqv *
 
 REM Ssearch for process Permissions
 cd %ProgramFiles%
 dir  /s /b *.exe | findstr /v .exe. >> %HOMEPATH%\Downloads\process.txt
 FOR /F %%G IN ('"dir  /s /b *.exe | findstr /v .exe."') DO icacls "%%G"
-
+FOR /F %%G IN ('"dir  /s /b *.exe | findstr /v .exe."') DO cacls "%%G"
 echo "Look for Binary_path_name and see if it is unquoted."
 
 echo "Vulnerable Drivers"
