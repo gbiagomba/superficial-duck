@@ -9,7 +9,7 @@ Upload the script to the impacted machine then run it
 wind0z_Pr1v3sc.bat
 ```
 
-## Ref
+## References:
 The tool was based on this guide
 * https://sushant747.gitbooks.io/total-oscp-guide/content/privilege_escalation_windows.html
 * http://pwnwiki.io/#!privesc/windows/index.md
