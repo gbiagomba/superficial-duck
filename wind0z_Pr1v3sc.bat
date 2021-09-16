@@ -12,7 +12,8 @@ REM https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%
 
 REM Setting up work directory
 echo "Setting up work directory"
-mkdir %HOMEPATH%\Downloads\%computername%-SAS_Audit\
+mkdir %HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts
+powershell "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls, [Net.SecurityProtocolType]::Tls11, [Net.SecurityProtocolType]::Tls12, [Net.SecurityProtocolType]::Ssl3"
 
 REM downloading dependencies
 echo "REM downloading dependencies"
@@ -217,7 +218,7 @@ echo "Migrate the meterpreter shell"
 wmic process list brief | find "winlogon"
 echo
 
-REM Using WMIC
+REM Find Services With Unquoted Paths
 echo "Find Services With Unquoted Paths"
 wmic service get name,displayname,pathname,startmode |findstr /i "auto" |findstr /i /v "c:\windows\\" |findstr /i /v """
 echo
@@ -270,13 +271,23 @@ REM Printing ENV VAR
 echo "Printing environment variables"
 powerShell "Get-ChildItem Env: | ft Key,Value" >> %HOMEPATH%\Downloads\%computername%-SAS_Audit\%computername%_env-var.txt
 
-REM PowerUp
-echo "PowerUp"
-powershell -Version 2 -nop -exec bypass IEX (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/PowerShellEmpire/PowerTools/master/PowerUp/PowerUp.ps1'); Invoke-AllChecks
-
 REM AppLocker Enumeration
 echo "List AppLocker rules"
 powershell "Get-AppLockerPolicy -Effective | select -ExpandProperty RuleCollections" >> %HOMEPATH%\Downloads\%computername%-SAS_Audit\%computername%_applocker.txt
+
+REM Changing directory
+echo "Moving SAS Audit"
+cd %HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts
+
+REM PrivescCheck
+echo "Using posh script PrivescCheck"
+powershell "Invoke-WebRequest -Uri https://github.com/itm4n/PrivescCheck/raw/master/PrivescCheck.ps1 -OutFile %HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts\PrivescCheck.ps1"
+powershell -ep bypass -c ". .\PrivescCheck.ps1; Invoke-PrivescCheck -Extended -Report %HOMEPATH%\Downloads\%computername%-SAS_Audit\%computername%_PrivescCheck -Format TXT,CSV,HTML,XML | Out-File -FilePath %HOMEPATH%\Downloads\%computername%-SAS_Audit\%computername%_PrivescCheck-2.txt"
+
+REM PowerUp
+echo "Using posh script PowerUp"
+powershell "Invoke-WebRequest -Uri https://raw.githubusercontent.com/PowerShellEmpire/PowerTools/master/PowerUp/PowerUp.ps1 -OutFile %HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts\PowerUp.ps1"
+powershell -ep bypass -c ". .\PowerUp.ps1; Invoke-AllChecks | Out-File -FilePath %HOMEPATH%\Downloads\%computername%-SAS_Audit\%computername%_PowerUp.txt"
 
 REM Search for them
 echo "Cleartext Passwords"
@@ -312,8 +323,8 @@ echo
 
 REM gift wrapping results
 REM if exist C:\Windows\System32\tar.exe (tar -czvf %HOMEPATH%\Downloads\%computername%-SAS_Audit.tar.bz %HOMEPATH%\Downloads\%computername%-SAS_Audit\) else (powershell Compress-Archive %HOMEPATH%\Downloads\%computername%-SAS_Audit\ %HOMEPATH%\Downloads\%computername%-SAS_Audit.zip)
-powershell Install-Module -Name Microsoft.PowerShell.Archive
-powershell Compress-Archive -Path %HOMEPATH%\Downloads\%computername%-SAS_Audit -DestinationPath %HOMEPATH%\Downloads\%computername%-SAS_Audit.zip -CompressionLevel Optimal
+powershell "Install-Module -Name Microsoft.PowerShell.Archive"
+powershell "Compress-Archive -Path %HOMEPATH%\Downloads\%computername%-SAS_Audit -DestinationPath %HOMEPATH%\Downloads\%computername%-SAS_Audit.zip -CompressionLevel Optimal"
 REM rd /s /q %HOMEPATH%\Downloads\%computername%-SAS_Audit\
 explorer %HOMEPATH%\Downloads\
 
