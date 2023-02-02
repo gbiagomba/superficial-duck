@@ -17,12 +17,12 @@ powershell "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolT
 
 REM downloading dependencies
 echo "REM downloading dependencies"
-bitsadmin /transfer n "https://download.sysinternals.com/files/PSTools.zip"
-REM bitsadmin /transfer n "https://github.com/silentsignal/wpc/archive/refs/heads/wpc-2.0.zip"
-REM bitsadmin /transfer n "https://github.com/pentestmonkey/windows-privesc-check/archive/refs/heads/master.zip"
-jar xf PSTools.zip
-REM jar xf wpc-2.0.zip
-REM jar xf master.zip
+powershell "Invoke-WebRequest -Uri https://download.sysinternals.com/files/PSTools.zip -OutFile %HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts\PSTools.zip"
+powershell "Invoke-WebRequest -Uri https://github.com/silentsignal/wpc/archive/refs/heads/wpc-2.0.zip -OutFile %HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts\wpc-2.0.zip"
+powershell "Invoke-WebRequest -Uri https://github.com/pentestmonkey/windows-privesc-check/archive/refs/heads/master.zip -OutFile %HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts\windows-privesc-check.zip"
+powershell "Expand-Archive -LiteralPath %HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts\PSTools.zip -DestinationPath %HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts\"
+powershell "Expand-Archive -LiteralPath %HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts\wpc-2.0.zip -DestinationPath  %HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts\"
+powershell "Expand-Archive -LiteralPath %HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts\windows-privesc-check.zip -DestinationPath  %HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts\"
 echo
 
 REM Basics
@@ -288,6 +288,23 @@ REM PowerUp
 echo "Using posh script PowerUp"
 powershell "Invoke-WebRequest -Uri https://raw.githubusercontent.com/PowerShellEmpire/PowerTools/master/PowerUp/PowerUp.ps1 -OutFile %HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts\PowerUp.ps1"
 powershell -ep bypass -c ". .\PowerUp.ps1; Invoke-AllChecks | Out-File -FilePath %HOMEPATH%\Downloads\%computername%-SAS_Audit\%computername%_PowerUp.txt"
+
+REM ADfind
+echo "Downloading ADFind"
+powershell "$method = [Microsoft.PowerShell.Commands.WebRequestMethod]::"POST"; $URI = [System.Uri]::new("https://www.joeware.net:443/downloads/dl.php"); $maximumRedirection = [System.Int32] 0; $headers = [System.Collections.Generic.Dictionary[string,string]]::new(); $headers.Add("Host", "www.joeware.net"); $userAgent = [System.String]::new("Mozilla/5.0 (Windows NT 10.0; ) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4086.0 Safari/537.36"); $headers.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"); $headers.Add("Accept-Language", "en-US,en;q=0.5"); $headers.Add("Accept-Encoding", "gzip, deflate"); $contentType = [System.String]::new("application/x-www-form-urlencoded"); $headers.Add("Origin", "http://www.joeware.net"); $headers.Add("Referer", "http://www.joeware.net/"); $headers.Add("Upgrade-Insecure-Requests", "1"); $headers.Add("Sec-Fetch-Dest", "document"); $headers.Add("Sec-Fetch-Mode", "navigate"); $headers.Add("Sec-Fetch-Site", "cross-site"); $headers.Add("Sec-Fetch-User", "?1"); $headers.Add("Te", "trailers"); $Output = "%HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts\AdFind.zip"; $body = [System.String]::new("download=AdFind.zip&email=&B1=Download+Now"); $response = (Invoke-WebRequest -Method $method -Uri $URI -MaximumRedirection $maximumRedirection -Headers $headers -ContentType $contentType -UserAgent $userAgent -Body $body -OutFile $Output); $response"
+powershell "Expand-Archive -LiteralPath %HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts\AdFind.zip -DestinationPath %HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts\"
+%HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts\adfind.exe -sc domainlist >> %HOMEPATH%\Downloads\%computername%-SAS_Audit\%computername%_domains_list.txt
+%HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts\adfind.exe -sc trustdmp >> %HOMEPATH%\Downloads\%computername%-SAS_Audit\%computername%_trusts_current_domain.txt
+%HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts\adfind.exe -sc dclist >> %HOMEPATH%\Downloads\%computername%-SAS_Audit\%computername%_domain_controllers.txt
+%HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts\adfind.exe -b dc=trusted,dc=APAC,dc=comcast,dc=com -sc dclist >> %HOMEPATH%\Downloads\%computername%-SAS_Audit\%computername%_other_dc.txt
+%HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts\adfind.exe -f (objectcategory=person) >> %HOMEPATH%\Downloads\%computername%-SAS_Audit\%computername%_ad_users.txt
+%HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts\adfind.exe -f "objectcategory=computer" >> %HOMEPATH%\Downloads\%computername%-SAS_Audit\%computername%_ad_computers.txt
+%HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts\adfind.exe -f (objectcategory=subnet) >> %HOMEPATH%\Downloads\%computername%-SAS_Audit\%computername%_subnets.txt
+%HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts\adfind.exe -sc dcmodes >> %HOMEPATH%\Downloads\%computername%-SAS_Audit\%computername%_dcmodes.txt
+%HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts\adfind.exe -sc adinfo >> %HOMEPATH%\Downloads\%computername%-SAS_Audit\%computername%_adinfo.txt
+%HOMEPATH%\Downloads\%computername%-SAS_Audit\scripts\adfind.exe -sc computers_pwdnotreqd >> %HOMEPATH%\Downloads\%computername%-SAS_Audit\%computername%_usr_withno_pwds.txt
+
+nltest /domain_trusts
 
 REM Search for them
 echo "Cleartext Passwords"
